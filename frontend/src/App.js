@@ -1,9 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-const API_BASE =
+const API_BASE = process.env.REACT_APP_API_BASE;
+
   (typeof window !== "undefined" && window.__API_BASE) || "http://127.0.0.1:8001";
 
+fetch(`${API_BASE}/api/chat`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ message })
+});
 // persistent user id so Ellie remembers you
 function getUserId() {
   const k = "ellie_user_id";
