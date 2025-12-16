@@ -5,7 +5,7 @@ import "./App.css";
 const API_BASE =
   process.env.REACT_APP_API_BASE ||
   (typeof window !== "undefined" && window.__API_BASE) ||
-  "http://127.0.0.1:8001";
+  "https://ellie-backend.onrender.com";
 
 // persistent user id so Ellie remembers you
 function getUserId() {
