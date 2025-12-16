@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-const API_BASE = process.env.REACT_APP_API_BASE;
+// Prefer Render env var (Static Site), fallback to optional index.html injection, then localhost
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  (typeof window !== "undefined" && window.__API_BASE) ||
+  "http://127.0.0.1:8001";
 
-  (typeof window !== "undefined" && window.__API_BASE) || "http://127.0.0.1:8001";
-
-fetch(`${API_BASE}/api/chat`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ message })
-});
 // persistent user id so Ellie remembers you
 function getUserId() {
   const k = "ellie_user_id";
@@ -67,11 +64,10 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: USER_ID, message: text }),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || `${res.status} ${res.statusText}`);
-      }
-      const data = await res.json();
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || `${res.status} ${res.statusText}`);
+
       setMessages((m) => [...m, { sender: "ai", text: data.reply }]);
     } catch (e) {
       setError(e.message || "Failed to reach backend");
@@ -101,7 +97,6 @@ export default function App() {
   }
 
   async function saveProfile() {
-    // you can swap these for inputs later
     await fetch(`${API_BASE}/api/profile`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -165,7 +160,14 @@ function Message({ sender, text }) {
   const isAI = sender === "ai";
   return (
     <div className={`row ${isAI ? "left" : "right"}`}>
-      {isAI && <img src="/avatar-girl.png" alt="" className="bubble-avatar" onError={(e)=>e.currentTarget.remove()} />}
+      {isAI && (
+        <img
+          src="/avatar-girl.png"
+          alt=""
+          className="bubble-avatar"
+          onError={(e) => e.currentTarget.remove()}
+        />
+      )}
       <div className={`bubble ${isAI ? "ai" : "me"}`}>{text}</div>
       {!isAI && <div className="bubble-avatar me-avatar">🫶</div>}
     </div>
